@@ -1,0 +1,16 @@
+{
+    "name": "infrastructure",
+    "main": "index.ts",
+    "scripts": {
+        "deploy": "pulumi up",
+        "destroy": "pulumi destroy"
+    },
+    "devDependencies": {
+        "@types/node": "^18"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/aws": "^6.0.0",
+        "@pulumi/awsx": "^2.0.2"
+    }
+}

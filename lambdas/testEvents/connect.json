@@ -1,0 +1,52 @@
+{
+    "headers": {
+      "Host": "9rcrjj4c6f.execute-api.us-east-1.amazonaws.com",
+      "Sec-WebSocket-Key": "sp/g5A20YoUGv8bo489tsQ==",
+      "Sec-WebSocket-Version": "13",
+      "X-Amzn-Trace-Id": "Root=1-658f538d-587657667bca7a937d098976",
+      "X-Forwarded-For": "162.228.50.162",
+      "X-Forwarded-Port": "443",
+      "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+      "Host": [
+        "9rcrjj4c6f.execute-api.us-east-1.amazonaws.com"
+      ],
+      "Sec-WebSocket-Key": [
+        "sp/g5A20YoUGv8bo489tsQ=="
+      ],
+      "Sec-WebSocket-Version": [
+        "13"
+      ],
+      "X-Amzn-Trace-Id": [
+        "Root=1-658f538d-587657667bca7a937d098976"
+      ],
+      "X-Forwarded-For": [
+        "162.228.50.162"
+      ],
+      "X-Forwarded-Port": [
+        "443"
+      ],
+      "X-Forwarded-Proto": [
+        "https"
+      ]
+    },
+    "requestContext": {
+      "routeKey": "$connect",
+      "eventType": "CONNECT",
+      "extendedRequestId": "Qun-GGeqoAMFo7A=",
+      "requestTime": "29/Dec/2023:23:17:33 +0000",
+      "messageDirection": "IN",
+      "stage": "dev",
+      "connectedAt": 1703891853135,
+      "requestTimeEpoch": 1703891853136,
+      "identity": {
+        "sourceIp": "162.228.50.162"
+      },
+      "requestId": "Qun-GGeqoAMFo7A=",
+      "domainName": "9rcrjj4c6f.execute-api.us-east-1.amazonaws.com",
+      "connectionId": "Qun-GcDpoAMCIqQ=",
+      "apiId": "9rcrjj4c6f"
+    },
+    "isBase64Encoded": false
+  }
