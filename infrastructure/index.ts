@@ -4,10 +4,28 @@ import path from 'node:path'
 import Gateway from './gateway'
 import lambdaFactory from './lambdaFactory'
 import build from '../build'
+import { PROJECT_NAME } from './constants'
 
 async function main() {
-  const config = new pulumi.Config()
-  const PROJECT_NAME = config.require('PROJECT_NAME')
+  const STACK = pulumi.getStack()
+
+  new aws.resourcegroups.Group('resourceGroup', {
+    name: PROJECT_NAME + '-' + STACK,
+    resourceQuery: {
+      type: 'TAG_FILTERS_1_0',
+      query: JSON.stringify({
+        ResourceTypeFilters: [
+          // 'AWS::ApiGatewayV2::Stage',
+          'AWS::Lambda::Function',
+          'AWS::DynamoDB::Table',
+        ],
+        TagFilters: [
+          { Key: 'Project', Values: [PROJECT_NAME] },
+          { Key: 'Stack', Values: [STACK] },
+        ],
+      }),
+    },
+  })
 
   const db = new aws.dynamodb.Table('db', {
     name: PROJECT_NAME,
@@ -21,6 +39,7 @@ async function main() {
     tableClass: 'STANDARD',
     writeCapacity: 10,
     readCapacity: 10,
+    tags: { Project: PROJECT_NAME, Stack: STACK },
   })
 
   const serviceRole = new aws.iam.Role('serviceRole', {
@@ -53,9 +72,10 @@ async function main() {
 
   lambdaPaths.forEach(lambdaPath => {
     const basename = path.basename(lambdaPath, '.js')
+    const lambdaName = `${PROJECT_NAME}-${basename}`
     const routeKey = basename.replace(/^(connect|disconnect|default)$/, '$$$1')
     const factoryParams = {
-      name: basename,
+      name: lambdaName,
       fileAssetPath: lambdaPath,
       roleArn: serviceRole.arn,
       variables: {
@@ -65,6 +85,7 @@ async function main() {
         }),
         STAGE: gateway.stack,
       },
+      tags: { Project: PROJECT_NAME, Stack: STACK },
     }
 
     const lambda = lambdaFactory(factoryParams)

@@ -1,5 +1,6 @@
 import * as pulumi from '@pulumi/pulumi'
 import * as aws from '@pulumi/aws'
+import { PROJECT_NAME } from './constants'
 
 type addIntegratedRouteParams = {
   routeKey: string
@@ -19,6 +20,7 @@ class Gateway {
       name,
       protocolType: 'WEBSOCKET',
       routeSelectionExpression: '$request.body.action',
+      tags: { Project: PROJECT_NAME },
     })
 
     this.name = name
@@ -56,6 +58,7 @@ class Gateway {
         throttlingBurstLimit: 50,
         throttlingRateLimit: 25,
       },
+      tags: { Project: PROJECT_NAME, Stack: stack },
     })
 
     this.stage = stage

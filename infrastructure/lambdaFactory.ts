@@ -6,10 +6,11 @@ type lambdaFactoryParams = {
   roleArn: string | pulumi.Input<string>
   fileAssetPath: string
   variables?: { [key: string]: any }
+  [key: string]: any
 }
 
 function lambdaFactory(params: lambdaFactoryParams) {
-  const { name, roleArn, variables, fileAssetPath } = params
+  const { name, roleArn, variables, fileAssetPath, ...rest } = params
   const code = new pulumi.asset.AssetArchive({
     'index.js': new pulumi.asset.FileAsset(fileAssetPath),
     'package.json': new pulumi.asset.StringAsset(JSON.stringify({
@@ -26,6 +27,7 @@ function lambdaFactory(params: lambdaFactoryParams) {
     runtime: aws.lambda.Runtime.NodeJS18dX,
     handler: 'index.handler',
     environment: { variables },
+    ...rest,
   })
 }
 
