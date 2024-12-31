@@ -14,11 +14,7 @@ async function main() {
     resourceQuery: {
       type: 'TAG_FILTERS_1_0',
       query: JSON.stringify({
-        ResourceTypeFilters: [
-          // 'AWS::ApiGatewayV2::Stage',
-          'AWS::Lambda::Function',
-          'AWS::DynamoDB::Table',
-        ],
+        ResourceTypeFilters: ['AWS::Lambda::Function', 'AWS::DynamoDB::Table'],
         TagFilters: [
           { Key: 'Project', Values: [PROJECT_NAME] },
           { Key: 'Stack', Values: [STACK] },
@@ -40,6 +36,22 @@ async function main() {
     writeCapacity: 10,
     readCapacity: 10,
     tags: { Project: PROJECT_NAME, Stack: STACK },
+    autoScaling: {
+      read: {
+        minCapacity: 5,
+        maxCapacity: 25,
+        targetUtilization: 70,
+        scaleInCooldown: 60,
+        scaleOutCooldown: 60,
+      },
+      write: {
+        minCapacity: 5,
+        maxCapacity: 25,
+        targetUtilization: 70,
+        scaleInCooldown: 60,
+        scaleOutCooldown: 60,
+      },
+    },
   })
 
   const serviceRole = new aws.iam.Role('serviceRole', {
