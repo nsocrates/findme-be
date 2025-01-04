@@ -1,6 +1,11 @@
 {
     "name": "findme",
     "main": "index.js",
+    "scripts": {
+        "deploy": "cd infrastructure && npm run deploy",
+        "destroy": "cd infrastructure && npm run destroy",
+        "postinstall": "cd infrastructure && npm install"
+    },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.130",
         "@types/node": "^18.19.3",

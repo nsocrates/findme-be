@@ -14,11 +14,7 @@ async function main() {
     resourceQuery: {
       type: 'TAG_FILTERS_1_0',
       query: JSON.stringify({
-        ResourceTypeFilters: [
-          // 'AWS::ApiGatewayV2::Stage',
-          'AWS::Lambda::Function',
-          'AWS::DynamoDB::Table',
-        ],
+        ResourceTypeFilters: ['AWS::Lambda::Function', 'AWS::DynamoDB::Table'],
         TagFilters: [
           { Key: 'Project', Values: [PROJECT_NAME] },
           { Key: 'Stack', Values: [STACK] },
@@ -50,8 +46,69 @@ async function main() {
       aws.iam.ManagedPolicies.AmazonAPIGatewayInvokeFullAccess,
     ],
     assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-      Service: ['lambda.amazonaws.com', 'apigateway.amazonaws.com'],
+      Service: [
+        'lambda.amazonaws.com',
+        'apigateway.amazonaws.com',
+        'application-autoscaling.amazonaws.com',
+      ],
     }),
+    tags: { Project: PROJECT_NAME, Stack: STACK },
+  })
+
+  const readScalableTarget = new aws.appautoscaling.Target(
+    'readScalableTarget',
+    {
+      minCapacity: 5,
+      maxCapacity: 20,
+      resourceId: pulumi.interpolate`table/${db.name}`,
+      scalableDimension: 'dynamodb:table:ReadCapacityUnits',
+      serviceNamespace: 'dynamodb',
+      roleArn: serviceRole.arn,
+      tags: { Project: PROJECT_NAME, Stack: STACK },
+    }
+  )
+
+  const writeScalableTarget = new aws.appautoscaling.Target(
+    'writeScalableTarget',
+    {
+      minCapacity: 5,
+      maxCapacity: 20,
+      resourceId: pulumi.interpolate`table/${db.name}`,
+      scalableDimension: 'dynamodb:table:WriteCapacityUnits',
+      serviceNamespace: 'dynamodb',
+      roleArn: serviceRole.arn,
+      tags: { Project: PROJECT_NAME, Stack: STACK },
+    }
+  )
+
+  new aws.appautoscaling.Policy('readScalingPolicy', {
+    policyType: 'TargetTrackingScaling',
+    resourceId: readScalableTarget.resourceId,
+    scalableDimension: readScalableTarget.scalableDimension,
+    serviceNamespace: readScalableTarget.serviceNamespace,
+    targetTrackingScalingPolicyConfiguration: {
+      targetValue: 70.0,
+      predefinedMetricSpecification: {
+        predefinedMetricType: 'DynamoDBReadCapacityUtilization',
+      },
+      scaleInCooldown: 60,
+      scaleOutCooldown: 60,
+    },
+  })
+
+  new aws.appautoscaling.Policy('writeScalingPolicy', {
+    policyType: 'TargetTrackingScaling',
+    resourceId: writeScalableTarget.resourceId,
+    scalableDimension: writeScalableTarget.scalableDimension,
+    serviceNamespace: writeScalableTarget.serviceNamespace,
+    targetTrackingScalingPolicyConfiguration: {
+      targetValue: 70.0,
+      predefinedMetricSpecification: {
+        predefinedMetricType: 'DynamoDBWriteCapacityUtilization',
+      },
+      scaleInCooldown: 60,
+      scaleOutCooldown: 60,
+    },
   })
 
   const cloudwatchRole = new aws.iam.Role('cloudwatchRole', {
@@ -60,6 +117,7 @@ async function main() {
     assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
       Service: 'apigateway.amazonaws.com',
     }),
+    tags: { Project: PROJECT_NAME, Stack: STACK },
   })
 
   new aws.apigateway.Account(PROJECT_NAME, {
