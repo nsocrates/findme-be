@@ -8,6 +8,7 @@ import { PROJECT_NAME } from './constants'
 
 async function main() {
   const STACK = pulumi.getStack()
+  const config = new pulumi.Config()
 
   new aws.resourcegroups.Group('resourceGroup', {
     name: PROJECT_NAME + '-' + STACK,
@@ -142,6 +143,7 @@ async function main() {
           return new URL(endpoint).hostname
         }),
         STAGE: gateway.stack,
+        SECRET_KEY: config.requireSecret("secretKey"),
       },
       tags: { Project: PROJECT_NAME, Stack: STACK },
     }
