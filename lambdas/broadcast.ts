@@ -12,8 +12,11 @@ export const handler = async (event: APIGatewayProxyWebsocketEventV2) => {
     const { message, secretKey } = JSON.parse(body || '{}')
 
     if (secretKey !== SECRET_KEY) {
-      console.error('Unauthorized')
       return { statusCode: 401 }
+    }
+
+    if (!message) {
+      return { statusCode: 400 }
     }
 
     await putLastCoordinates(message)
